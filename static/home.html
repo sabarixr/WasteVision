@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>WasteVision — Waste Management System</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <style>
+      :root {
+        --primary: #10b981;
+        --primary-dark: #059669;
+        --secondary: #0ea5a4;
+        --bg: #f9fafb;
+        --surface: #ffffff;
+        --border: #e5e7eb;
+        --text: #1f2937;
+        --text-muted: #6b7280;
+        --radius: 12px;
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --maxw: 800px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+        background: linear-gradient(
+          135deg,
+          #f0fdf4 0%,
+          #f9fafb 50%,
+          #f0f9ff 100%
+        );
+        color: var(--text);
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        width: 100%;
+        max-width: var(--maxw);
+      }
+
+      /* HEADER */
+      .header {
+        text-align: center;
+        margin-bottom: 48px;
+      }
+
+      .logo {
+        width: 80px;
+        height: 80px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 800;
+        font-size: 36px;
+        margin: 0 auto 24px auto;
+        box-shadow: var(--shadow-lg);
+      }
+
+      .title {
+        font-size: 36px;
+        font-weight: 700;
+        margin: 0;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .subtitle {
+        font-size: 18px;
+        color: var(--text-muted);
+        margin-top: 12px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      /* CARDS */
+      .card {
+        background: var(--surface);
+        padding: 32px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border);
+        margin-bottom: 24px;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 32px;
+      }
+
+      .action-card {
+        background: var(--surface);
+        padding: 24px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        text-align: center;
+        transition: 0.2s;
+        cursor: pointer;
+      }
+
+      .action-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary);
+      }
+
+      .action-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+      }
+
+      .action-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      .action-desc {
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+
+      .auth-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 14px 24px;
+        border-radius: 10px;
+        border: none;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: 0.2s;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+      }
+
+      .btn-secondary {
+        background: var(--surface);
+        color: var(--text);
+        border: 2px solid var(--border);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--primary);
+        background: rgba(16, 185, 129, 0.1);
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+      }
+
+      .feature {
+        text-align: center;
+        padding: 20px;
+      }
+
+      .feature-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+      }
+
+      .feature-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      .feature-desc {
+        font-size: 14px;
+        color: var(--text-muted);
+      }
+
+      .logged-in {
+        display: none;
+      }
+
+      .logged-out {
+        display: block;
+      }
+
+      @media (max-width: 600px) {
+        .btn {
+          width: 100%;
+          text-align: center;
+        }
+        .card {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">🌍</div>
+        <h1 class="title">WasteVision</h1>
+        <p class="subtitle">
+          Smart waste management system connecting citizens and authorities to
+          create cleaner communities.
+        </p>
+      </div>
+
+      <!-- Logged In Actions -->
+      <div id="logged-in" class="logged-in">
+        <div class="actions">
+          <div class="action-card" onclick="goToDashboard()">
+            <div class="action-icon">📊</div>
+            <div class="action-title">Dashboard</div>
+            <div class="action-desc">View your reports and analytics</div>
+          </div>
+
+          <div id="upload-card" class="action-card" onclick="goToUpload()">
+            <div class="action-icon">📝</div>
+            <div class="action-title">Report Issue</div>
+            <div class="action-desc">Submit a new waste management report</div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 32px">
+          <span
+            id="welcome-text"
+            style="color: var(--text-muted); margin-right: 20px"
+          ></span>
+          <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        </div>
+      </div>
+
+      <!-- Logged Out Actions -->
+      <div id="logged-out" class="logged-out">
+        <div class="card">
+          <div style="text-align: center; margin-bottom: 24px">
+            <h2 style="margin: 0 0 16px 0">Get Started</h2>
+            <p style="color: var(--text-muted); margin: 0">
+              Join the waste management system to report issues or manage
+              community reports.
+            </p>
+          </div>
+
+          <div class="auth-buttons">
+            <a href="/static/login.html" class="btn btn-primary">Login</a>
+            <a href="/static/signup.html" class="btn btn-secondary">Sign Up</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="text-align: center; margin-bottom: 24px">Features</h3>
+          <div class="feature-grid">
+            <div class="feature">
+              <div class="feature-icon">🗑️</div>
+              <div class="feature-title">Report Issues</div>
+              <div class="feature-desc">
+                Easily report waste management problems in your area
+              </div>
+            </div>
+            <div class="feature">
+              <div class="feature-icon">📍</div>
+              <div class="feature-title">Location Tracking</div>
+              <div class="feature-desc">
+                GPS coordinates help authorities find and resolve issues
+              </div>
+            </div>
+            <div class="feature">
+              <div class="feature-icon">📸</div>
+              <div class="feature-title">Photo Evidence</div>
+              <div class="feature-desc">
+                Attach photos to provide clear documentation
+              </div>
+            </div>
+            <div class="feature">
+              <div class="feature-icon">⚡</div>
+              <div class="feature-title">Real-time Updates</div>
+              <div class="feature-desc">
+                Track the status of your reports and get updates
+              </div>
+            </div>
+            <div class="feature">
+              <div class="feature-icon">👥</div>
+              <div class="feature-title">Community Driven</div>
+              <div class="feature-desc">
+                Citizens and authorities work together for cleaner cities
+              </div>
+            </div>
+            <div class="feature">
+              <div class="feature-icon">📈</div>
+              <div class="feature-title">Analytics</div>
+              <div class="feature-desc">
+                View statistics and trends to improve waste management
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function checkLoginStatus() {
+        const token = localStorage.getItem("token");
+        const loggedIn = document.getElementById("logged-in");
+        const loggedOut = document.getElementById("logged-out");
+        const uploadCard = document.getElementById("upload-card");
+        const welcomeText = document.getElementById("welcome-text");
+
+        if (token) {
+          // Check if token is valid and get user info
+          fetch("/api/me", {
+            headers: { Authorization: "Bearer " + token },
+          })
+            .then((response) => {
+              if (response.status === 401) {
+                // Token expired
+                localStorage.removeItem("token");
+                showLoggedOut();
+                return;
+              }
+              return response.json();
+            })
+            .then((user) => {
+              if (user) {
+                loggedIn.style.display = "block";
+                loggedOut.style.display = "none";
+
+                welcomeText.textContent = `Welcome back, ${user.username} (${user.role})`;
+
+                // Hide upload card for authority users
+                if (user.role === "authority") {
+                  uploadCard.style.display = "none";
+                } else {
+                  uploadCard.style.display = "block";
+                }
+              }
+            })
+            .catch(() => {
+              // Network error or invalid response
+              showLoggedOut();
+            });
+        } else {
+          showLoggedOut();
+        }
+      }
+
+      function showLoggedOut() {
+        document.getElementById("logged-in").style.display = "none";
+        document.getElementById("logged-out").style.display = "block";
+      }
+
+      function goToDashboard() {
+        window.location.href = "/static/dashboard.html";
+      }
+
+      function goToUpload() {
+        window.location.href = "/static/upload.html";
+      }
+
+      function logout() {
+        localStorage.removeItem("token");
+        window.location.reload();
+      }
+
+      // Check login status on page load
+      checkLoginStatus();
+    </script>
+  </body>
+</html>

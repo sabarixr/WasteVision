@@ -1,20 +1,27 @@
 # main.py
 import os
 import uuid
+import warnings
+import logging
 from datetime import datetime, timedelta
 from typing import Optional, List
 
-from fastapi import FastAPI, HTTPException, Depends, status, File, Form, UploadFile
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi import FastAPI, HTTPException, Depends, File, Form, UploadFile
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from pydantic import BaseModel, validator
-
 from sqlmodel import Field, SQLModel, create_engine, Session, select
 from google.cloud import storage
+
+# Suppress bcrypt warnings globally before importing passlib
+warnings.filterwarnings("ignore", message=".*bcrypt.*")
+warnings.filterwarnings("ignore", message=".*error reading bcrypt version.*")
+logging.getLogger("passlib.handlers.bcrypt").setLevel(logging.ERROR)
+
+from passlib.context import CryptContext
 
 # ---------------- CONFIG ----------------
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-change-me")
@@ -26,12 +33,18 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./app.db")
 # ----------------------------------------
 
 # Use a more compatible bcrypt configuration that handles version issues
+# Suppress passlib bcrypt warnings during initialization
+warnings.filterwarnings("ignore", message=".*bcrypt.*")
+
 try:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    # Test if bcrypt works
-    pwd_context.hash("test")
-except Exception as e:
-    print(f"[WARNING] bcrypt not working ({e}), falling back to pbkdf2_sha256")
+    # Test if bcrypt works silently
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        pwd_context.hash("test")
+    # Don't print anything if bcrypt works - reduce noise
+except Exception:
+    print("[INFO] Using pbkdf2_sha256 for password hashing (bcrypt unavailable)")
     pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
@@ -57,7 +70,7 @@ def create_storage_client():
         elif os.environ.get("UPLOAD_BUCKET"):
             # Try default credentials, but fail fast
             return storage.Client()
-    except Exception as e:
+    except Exception:
         pass
     
     # Fake storage client for local development/testing
@@ -86,7 +99,7 @@ def create_storage_client():
         def bucket(self, name):
             return LocalBucket(name)
     
-    print(f"[DEV] Using fake storage client (Google Cloud not configured for dev)")
+    print("[DEV] Using fake storage client (Google Cloud not configured for dev)")
     return LocalStorageClient()
 
 storage_client = create_storage_client()
@@ -249,6 +262,59 @@ def login(form: OAuth2PasswordRequestForm = Depends()):
         return {"access_token": token, "token_type": "bearer"}
 
 
+@app.get("/api/me")
+def me(user: User = Depends(get_current_user)):
+    """Return basic info about the current user (id, username, role)."""
+    return {"id": user.id, "username": user.username, "role": user.role}
+
+
+@app.get("/api/analytics/stats")
+def get_analytics_stats(user: User = Depends(get_current_user)):
+    """Get analytics statistics for the current user based on their role."""
+    with Session(engine) as session:
+        if user.role == "authority":
+            # Authority sees global statistics
+            total_reports = session.exec(select(Report)).all()
+            total_count = len(total_reports)
+            pending_count = len([r for r in total_reports if r.immediate_attention is None])
+            urgent_count = len([r for r in total_reports if r.immediate_attention is True])
+            resolved_count = len([r for r in total_reports if r.immediate_attention is False])
+            
+            # Get unique uploaders
+            unique_uploaders = len(set(r.uploader_id for r in total_reports))
+            
+            # Recent reports (last 7 days)
+            from datetime import datetime, timedelta
+            week_ago = datetime.utcnow() - timedelta(days=7)
+            recent_reports = [r for r in total_reports if r.created_at >= week_ago]
+            
+            return {
+                "role": "authority",
+                "total_reports": total_count,
+                "pending_reports": pending_count,
+                "urgent_reports": urgent_count,
+                "resolved_reports": resolved_count,
+                "active_citizens": unique_uploaders,
+                "recent_reports": len(recent_reports)
+            }
+        else:
+            # Citizens see their own statistics
+            user_reports = session.exec(
+                select(Report).where(Report.uploader_id == user.id)
+            ).all()
+            
+            total_count = len(user_reports)
+            pending_count = len([r for r in user_reports if r.immediate_attention is None])
+            urgent_count = len([r for r in user_reports if r.immediate_attention is True])
+            resolved_count = len([r for r in user_reports if r.immediate_attention is False])
+            
+            return {
+                "role": "citizen",
+                "total_reports": total_count,
+                "pending_reports": pending_count,
+                "urgent_reports": urgent_count,
+                "resolved_reports": resolved_count
+            }
 @app.post("/api/report", response_model=ReportOut)
 async def create_report(
     image: UploadFile = File(...),
@@ -368,7 +434,7 @@ def modify_report(
 
 @app.get("/")
 def root():
-    return FileResponse("static/signup.html")
+    return FileResponse("static/home.html")
 
 
 # ---------------- DEV SERVER ----------------

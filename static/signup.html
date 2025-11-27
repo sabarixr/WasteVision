@@ -1,385 +1,413 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Join Waste Reporter — Create Your Account</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    :root {
-      --primary: #10b981;
-      --primary-dark: #059669;
-      --secondary: #0ea5a4;
-      --accent: #f59e0b;
-      --bg: #f9fafb;
-      --surface: #ffffff;
-      --border: #e5e7eb;
-      --text: #1f2937;
-      --text-muted: #6b7280;
-      --radius: 12px;
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-      --maxw: 420px;
-    }
+  <head>
+    <meta charset="utf-8" />
+    <title>Join Waste Reporter — Create Your Account</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      :root {
+        --primary: #10b981;
+        --primary-dark: #059669;
+        --secondary: #0ea5a4;
+        --accent: #f59e0b;
+        --bg: #f9fafb;
+        --surface: #ffffff;
+        --border: #e5e7eb;
+        --text: #1f2937;
+        --text-muted: #6b7280;
+        --radius: 12px;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --maxw: 420px;
+      }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, #f0fdf4 0%, #f9fafb 50%, #f0f9ff 100%);
-      color: var(--text);
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-      -webkit-font-smoothing: antialiased;
-    }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
 
-    .container {
-      width: 100%;
-      max-width: var(--maxw);
-    }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #f0fdf4 0%,
+          #f9fafb 50%,
+          #f0f9ff 100%
+        );
+        color: var(--text);
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+        -webkit-font-smoothing: antialiased;
+      }
 
-    .card {
-      background: var(--surface);
-      border-radius: var(--radius);
-      padding: 40px 28px;
-      box-shadow: var(--shadow-lg);
-      border: 1px solid var(--border);
-    }
+      .container {
+        width: 100%;
+        max-width: var(--maxw);
+      }
 
-    .header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .logo {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 56px;
-      height: 56px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      border-radius: 12px;
-      color: white;
-      font-weight: 800;
-      font-size: 22px;
-      box-shadow: var(--shadow-md);
-      margin-bottom: 16px;
-    }
-
-    .title {
-      font-size: 28px;
-      font-weight: 700;
-      margin: 0 0 8px 0;
-      color: var(--text);
-    }
-
-    .subtitle {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin: 0;
-    }
-
-    .role-info {
-      background: #f0fdf4;
-      border-left: 4px solid var(--primary);
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 28px;
-      font-size: 13px;
-      line-height: 1.5;
-      color: var(--text-muted);
-    }
-
-    .role-info strong {
-      color: var(--primary-dark);
-    }
-
-    .form-row {
-      margin-bottom: 18px;
-    }
-
-    label {
-      display: block;
-      font-weight: 600;
-      font-size: 13px;
-      color: var(--text);
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    input[type="text"],
-    input[type="password"],
-    select {
-      width: 100%;
-      padding: 11px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      background: var(--surface);
-      font-size: 14px;
-      color: var(--text);
-      transition: all 0.2s ease;
-      font-family: inherit;
-    }
-
-    input[type="text"]:focus,
-    input[type="password"]:focus,
-    select:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-      background: #f9fafb;
-    }
-
-    input[type="text"]::placeholder,
-    input[type="password"]::placeholder {
-      color: var(--text-muted);
-    }
-
-    .form-footer {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 28px;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 11px 18px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      transition: all 0.2s ease;
-      text-decoration: none;
-      width: 100%;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-      transform: translateY(-1px);
-    }
-
-    .btn-primary:active {
-      transform: translateY(0);
-    }
-
-    .btn-secondary {
-      background: var(--surface);
-      color: var(--primary);
-      border: 1.5px solid var(--border);
-    }
-
-    .btn-secondary:hover {
-      background: #f3f4f6;
-      border-color: var(--primary);
-    }
-
-    .divider {
-      text-align: center;
-      margin: 24px 0 24px 0;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    .divider::before,
-    .divider::after {
-      content: '';
-      display: inline-block;
-      width: 40%;
-      height: 1px;
-      background: var(--border);
-      vertical-align: middle;
-    }
-
-    .divider::before {
-      margin-right: 12px;
-    }
-
-    .divider::after {
-      margin-left: 12px;
-    }
-
-    .footer-text {
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-top: 20px;
-    }
-
-    .footer-text a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .footer-text a:hover {
-      text-decoration: underline;
-    }
-
-    .error-message {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      border-radius: 6px;
-      padding: 12px;
-      font-size: 13px;
-      color: #991b1b;
-      display: none;
-      margin-bottom: 16px;
-    }
-
-    .error-message.show {
-      display: block;
-    }
-
-    @media (max-width: 480px) {
       .card {
-        padding: 32px 20px;
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 40px 28px;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border);
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+
+      .logo {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 12px;
+        color: white;
+        font-weight: 800;
+        font-size: 22px;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 16px;
       }
 
       .title {
-        font-size: 24px;
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        color: var(--text);
+      }
+
+      .subtitle {
+        font-size: 14px;
+        color: var(--text-muted);
+        margin: 0;
+      }
+
+      .role-info {
+        background: #f0fdf4;
+        border-left: 4px solid var(--primary);
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 28px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--text-muted);
+      }
+
+      .role-info strong {
+        color: var(--primary-dark);
+      }
+
+      .form-row {
+        margin-bottom: 18px;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--text);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      input[type="text"],
+      input[type="password"],
+      select {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        font-size: 14px;
+        color: var(--text);
+        transition: all 0.2s ease;
+        font-family: inherit;
+      }
+
+      input[type="text"]:focus,
+      input[type="password"]:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        background: #f9fafb;
+      }
+
+      input[type="text"]::placeholder,
+      input[type="password"]::placeholder {
+        color: var(--text-muted);
+      }
+
+      .form-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 28px;
       }
 
       .btn {
-        padding: 13px 16px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="card">
-      <div class="header">
-        <div class="logo">🌍</div>
-        <h1 class="title">Waste Reporter</h1>
-        <p class="subtitle">Create your account to get started</p>
-      </div>
-
-      <div class="error-message" id="errorMessage"></div>
-
-      <form id="signupForm" class="form">
-        <div class="role-info">
-          ✓ Choose your role — <strong>Authorities</strong> can manage reports
-        </div>
-
-        <div class="form-row">
-          <label for="username">Username</label>
-          <input
-            id="username"
-            type="text"
-            placeholder="Enter your username"
-            required
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="form-row">
-          <label for="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            placeholder="Create a strong password"
-            required
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="form-row">
-          <label for="role">Account Type</label>
-          <select id="role" required>
-            <option value="">Select your role</option>
-            <option value="user">Reporter (Citizen)</option>
-            <option value="authority">Authority (Manager)</option>
-          </select>
-        </div>
-
-        <div class="form-footer">
-          <button class="btn btn-primary" type="submit">Create Account</button>
-          <a href="/static/login.html" class="btn btn-secondary">Already have an account? Sign in</a>
-        </div>
-      </form>
-
-      <p class="footer-text">
-        By signing up, you agree to our
-        <a href="#">Terms of Service</a>
-      </p>
-    </div>
-  </div>
-
-  <script>
-    const form = document.getElementById('signupForm');
-    const errorMessage = document.getElementById('errorMessage');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const roleSelect = document.getElementById('role');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      errorMessage.classList.remove('show');
-
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value;
-      const role = roleSelect.value;
-
-      // Basic validation
-      if (!username || username.length < 3) {
-        showError('Username must be at least 3 characters');
-        return;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 11px 18px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        width: 100%;
       }
 
-      if (!password || password.length < 6) {
-        showError('Password must be at least 6 characters');
-        return;
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
       }
 
-      if (!role) {
-        showError('Please select an account type');
-        return;
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        transform: translateY(-1px);
       }
 
-      try {
-        const res = await fetch('/api/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password, role })
-        });
+      .btn-primary:active {
+        transform: translateY(0);
+      }
 
-        const data = await res.json();
+      .btn-secondary {
+        background: var(--surface);
+        color: var(--primary);
+        border: 1.5px solid var(--border);
+      }
 
-        if (res.status === 200 || res.status === 201) {
-          // Success - redirect to login
-          window.location.href = '/static/login.html';
-        } else {
-          showError(data.message || 'Signup failed. Please try again.');
+      .btn-secondary:hover {
+        background: #f3f4f6;
+        border-color: var(--primary);
+      }
+
+      .divider {
+        text-align: center;
+        margin: 24px 0 24px 0;
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+
+      .divider::before,
+      .divider::after {
+        content: "";
+        display: inline-block;
+        width: 40%;
+        height: 1px;
+        background: var(--border);
+        vertical-align: middle;
+      }
+
+      .divider::before {
+        margin-right: 12px;
+      }
+
+      .divider::after {
+        margin-left: 12px;
+      }
+
+      .footer-text {
+        text-align: center;
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-top: 20px;
+      }
+
+      .footer-text a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .footer-text a:hover {
+        text-decoration: underline;
+      }
+
+      .error-message {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 6px;
+        padding: 12px;
+        font-size: 13px;
+        color: #991b1b;
+        display: none;
+        margin-bottom: 16px;
+      }
+
+      .error-message.show {
+        display: block;
+      }
+
+      @media (max-width: 480px) {
+        .card {
+          padding: 32px 20px;
         }
-      } catch (err) {
-        showError('Network error. Please check your connection.');
-        console.error(err);
-      }
-    });
 
-    function showError(message) {
-      errorMessage.textContent = message;
-      errorMessage.classList.add('show');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  </script>
-</body>
+        .title {
+          font-size: 24px;
+        }
+
+        .btn {
+          padding: 13px 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <div class="header">
+          <div class="logo">🌍</div>
+          <h1 class="title">Waste Reporter</h1>
+          <p class="subtitle">Create your account to get started</p>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <form id="signupForm" class="form">
+          <div class="role-info">
+            ✓ Choose your role — <strong>Authorities</strong> can manage reports
+          </div>
+
+          <div class="form-row">
+            <label for="username">Username</label>
+            <input
+              id="username"
+              type="text"
+              placeholder="Enter your username"
+              required
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="form-row">
+            <label for="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              placeholder="Create a strong password"
+              required
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="form-row">
+            <label for="role">Account Type</label>
+            <select id="role" required>
+              <option value="">Select your role</option>
+              <option value="user">Reporter (Citizen)</option>
+              <option value="authority">Authority (Manager)</option>
+            </select>
+          </div>
+
+          <div class="form-footer">
+            <button class="btn btn-primary" type="submit">
+              Create Account
+            </button>
+            <a href="/static/login.html" class="btn btn-secondary"
+              >Already have an account? Sign in</a
+            >
+          </div>
+        </form>
+
+        <div style="text-align: center; margin-top: 16px">
+          <a
+            href="/"
+            style="
+              color: var(--text-muted);
+              text-decoration: none;
+              font-size: 14px;
+            "
+            >← Back to Home</a
+          >
+        </div>
+
+        <p class="footer-text">
+          By signing up, you agree to our
+          <a href="#">Terms of Service</a>
+        </p>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById("signupForm");
+      const errorMessage = document.getElementById("errorMessage");
+      const usernameInput = document.getElementById("username");
+      const passwordInput = document.getElementById("password");
+      const roleSelect = document.getElementById("role");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        errorMessage.classList.remove("show");
+
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value;
+        const role = roleSelect.value;
+
+        // Basic validation
+        if (!username || username.length < 3) {
+          showError("Username must be at least 3 characters");
+          return;
+        }
+
+        if (!password || password.length < 6) {
+          showError("Password must be at least 6 characters");
+          return;
+        }
+
+        if (!role) {
+          showError("Please select an account type");
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password, role }),
+          });
+
+          const data = await res.json();
+
+          if (res.status === 200 || res.status === 201) {
+            // Success - redirect to login
+            window.location.href = "/static/login.html";
+          } else {
+            showError(data.message || "Signup failed. Please try again.");
+          }
+        } catch (err) {
+          showError("Network error. Please check your connection.");
+          console.error(err);
+        }
+      });
+
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.add("show");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  </body>
 </html>
