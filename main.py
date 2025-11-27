@@ -11,7 +11,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 from sqlmodel import Field, SQLModel, create_engine, Session, select
 from google.cloud import storage
@@ -25,7 +25,15 @@ SIGNED_URL_EXPIRATION = 300  # seconds
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./app.db")
 # ----------------------------------------
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Use a more compatible bcrypt configuration that handles version issues
+try:
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    # Test if bcrypt works
+    pwd_context.hash("test")
+except Exception as e:
+    print(f"[WARNING] bcrypt not working ({e}), falling back to pbkdf2_sha256")
+    pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
 
 app = FastAPI()
@@ -40,11 +48,53 @@ engine = create_engine(
     connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {},
 )
 
-storage_client = storage.Client()
+# Dev mode: fall back to fake storage if Google Cloud credentials not available
+def create_storage_client():
+    try:
+        # Only try real client if we have explicit bucket config
+        if os.environ.get("UPLOAD_BUCKET") and os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
+            return storage.Client()
+        elif os.environ.get("UPLOAD_BUCKET"):
+            # Try default credentials, but fail fast
+            return storage.Client()
+    except Exception as e:
+        pass
+    
+    # Fake storage client for local development/testing
+    class LocalBlob:
+        def __init__(self, name):
+            self.name = name
+            self._data = None
+            
+        def upload_from_string(self, data, content_type=None):
+            # In dev mode, just store in memory (or could save to local file)
+            self._data = data
+            print(f"[DEV] Fake upload: {self.name} ({len(data)} bytes)")
+            
+        def generate_signed_url(self, expiration):
+            # Return a fake URL for dev mode
+            return f"https://fake-storage.dev/{self.name}?expires={expiration}"
+    
+    class LocalBucket:
+        def __init__(self, name):
+            self.name = name
+            
+        def blob(self, name):
+            return LocalBlob(name)
+    
+    class LocalStorageClient:
+        def bucket(self, name):
+            return LocalBucket(name)
+    
+    print(f"[DEV] Using fake storage client (Google Cloud not configured for dev)")
+    return LocalStorageClient()
+
+storage_client = create_storage_client()
 
 # ---------------- MODELS ----------------
 
 class User(SQLModel, table=True):
+    __table_args__ = {'extend_existing': True}
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(index=True, unique=True)
     hashed_password: str
@@ -52,6 +102,7 @@ class User(SQLModel, table=True):
 
 
 class Report(SQLModel, table=True):
+    __table_args__ = {'extend_existing': True}
     id: Optional[int] = Field(default=None, primary_key=True)
     filename: str
     uploader_id: int
@@ -115,6 +166,22 @@ class UserCreate(BaseModel):
     password: str
     role: Optional[str] = "user"
 
+    @validator("password")
+    def validate_password(cls, v: str) -> str:
+        if v is None:
+            raise ValueError("password is required")
+        try:
+            b = v.encode("utf-8")
+        except Exception:
+            # fallback: if encoding fails for some reason
+            raise ValueError("password must be a valid UTF-8 string")
+
+        if len(b) > 72:
+            raise ValueError(
+                "password cannot be longer than 72 bytes, truncate manually if necessary (e.g. my_password[:72])"
+            )
+        return v
+
 
 class Token(BaseModel):
     access_token: str
@@ -161,6 +228,12 @@ def signup(data: UserCreate):
 
         return {"message": "User created"}
 
+    except HTTPException:
+        # Re-raise HTTP exceptions without wrapping them
+        raise
+    except ValueError as e:
+        # If it's a validation/value error (e.g. password too long), return 400
+        raise HTTPException(status_code=400, detail=f"Signup failed: {str(e)}")
     except Exception as e:
         raise HTTPException(500, f"Signup failed: {str(e)}")
 
@@ -199,7 +272,7 @@ async def create_report(
     if timestamp:
         try:
             ts = datetime.fromisoformat(timestamp)
-        except:
+        except Exception:
             ts = None
 
     with Session(engine) as session:
@@ -296,3 +369,11 @@ def modify_report(
 @app.get("/")
 def root():
     return FileResponse("static/signup.html")
+
+
+# ---------------- DEV SERVER ----------------
+
+if __name__ == "__main__":
+    import uvicorn
+    print("Starting FastAPI development server...")
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
