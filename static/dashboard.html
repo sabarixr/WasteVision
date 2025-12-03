@@ -357,8 +357,9 @@
             <select id="filter-status">
               <option value="all">All</option>
               <option value="pending">AI Review Pending</option>
-              <option value="urgent">AI: Urgent</option>
-              <option value="resolved">Resolved</option>
+              <option value="urgent">AI: Immediate</option>
+              <option value="later">AI: Later</option>
+              <option value="resolved">No Need (Resolved)</option>
             </select>
           </div>
           <div class="filter-group">
@@ -478,7 +479,12 @@
       }
 
       function getStatusText(report) {
-        if (report.immediate_attention === null) return "pending";
+        // Distinguish 'later' from general pending via AI notes
+        if (report.immediate_attention === null) {
+          const n = (report.notes || "").toLowerCase();
+          if (n.includes("urgency=somewhat_late")) return "later";
+          return "pending";
+        }
         if (report.immediate_attention === true) return "urgent";
         return "resolved";
       }
@@ -489,8 +495,13 @@
       }
 
       function getStatusBadgeText(report) {
-        if (report.immediate_attention === null) return "AI Review Pending";
-        return report.immediate_attention ? "AI: Urgent" : "Resolved";
+        // If pending, check if AI suggested 'somewhat_late' in notes
+        if (report.immediate_attention === null) {
+          const n = (report.notes || "").toLowerCase();
+          if (n.includes("urgency=somewhat_late")) return "AI: Later";
+          return "AI Review Pending";
+        }
+        return report.immediate_attention ? "AI: Immediate" : "No Need";
       }
 
       function filterAndSortReports() {
