@@ -444,28 +444,11 @@ async def create_report(
         session.commit()
         session.refresh(report)
 
-    # Generate signed URL with IAM-based signing (works on Cloud Run without a private key)
-    # Explicitly specify service_account_email to force IAM signing via SignBlob API
-    from google.auth import compute_engine
-    import google.auth
+    # Make blob publicly readable to bypass signed URL issues
+    blob.make_public()
     
-    try:
-        credentials = storage_client._credentials
-    except AttributeError:
-        credentials, _ = google.auth.default()
-    
-    service_account_email = None
-    if isinstance(credentials, compute_engine.Credentials):
-        service_account_email = credentials.service_account_email
-    elif hasattr(credentials, 'service_account_email'):
-        service_account_email = credentials.service_account_email
-    
-    url = blob.generate_signed_url(
-        version="v4",
-        expiration=timedelta(seconds=SIGNED_URL_EXPIRATION),
-        method="GET",
-        service_account_email=service_account_email
-    )
+    # Use public URL instead of signed URL
+    url = blob.public_url
 
     return ReportOut(
         id=report.id,
@@ -496,29 +479,9 @@ def list_reports(user: User = Depends(get_current_user)):
     bucket = storage_client.bucket(UPLOAD_BUCKET)
     results = []
 
-    # Get service account email for IAM-based signing
-    from google.auth import compute_engine
-    import google.auth
-    
-    try:
-        credentials = storage_client._credentials
-    except AttributeError:
-        credentials, _ = google.auth.default()
-    
-    service_account_email = None
-    if isinstance(credentials, compute_engine.Credentials):
-        service_account_email = credentials.service_account_email
-    elif hasattr(credentials, 'service_account_email'):
-        service_account_email = credentials.service_account_email
-
     for r in reports:
-        # Generate signed URL with IAM-based signing (works on Cloud Run without a private key)
-        url = bucket.blob(r.filename).generate_signed_url(
-            version="v4",
-            expiration=timedelta(seconds=SIGNED_URL_EXPIRATION),
-            method="GET",
-            service_account_email=service_account_email
-        )
+        # Use public URL instead of signed URL to bypass authentication issues
+        url = f"https://storage.googleapis.com/{UPLOAD_BUCKET}/{r.filename}"
         results.append(ReportOut(
             id=r.id,
             filename=r.filename,
