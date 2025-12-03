@@ -53,7 +53,8 @@ WASTE_LABELS = ["plastic", "organic", "metal", "glass", "paper", "mixed"]
 URGENCY_LABELS = ["immediate", "somewhat_late", "no_need"]
 
 
-def gen_row(i: int):
+def gen_row(i: int, start_date: datetime = None, end_date: datetime = None):
+    """Generate a synthetic row with timestamp spread across a date range."""
     report_id = i + 1
     filename = f"uploads/{uuid.uuid4().hex}_img.jpg"
     lat = round(random.uniform(-37.0, 37.0), 6)
@@ -64,7 +65,16 @@ def gen_row(i: int):
     urgency_label = random.choices(URGENCY_LABELS, weights=[0.2, 0.2, 0.6])[0]
     urgency_index = {"immediate": 0, "somewhat_late": 1, "no_need": 2}[urgency_label]
     urgency_score = round(random.random(), 6)
-    created_at = datetime.now(timezone.utc).isoformat()
+    
+    # Generate timestamp spread across the date range
+    if start_date and end_date:
+        delta = end_date - start_date
+        random_seconds = random.randint(0, int(delta.total_seconds()))
+        created_at = start_date + timedelta(seconds=random_seconds)
+    else:
+        created_at = datetime.now(timezone.utc)
+    
+    created_at = created_at.isoformat()
 
     return {
         "report_id": report_id,
@@ -129,15 +139,25 @@ def main():
     parser.add_argument("--table", type=str, default=os.environ.get("BQ_TABLE", "predictions"), help="BigQuery table name")
     parser.add_argument("--batch-size", type=int, default=1000, help="Insert batch size")
     parser.add_argument("--dry-run", action="store_true", help="Write NDJSON to ./out.ndjson instead of inserting")
+    parser.add_argument("--start-date", type=str, default="2025-01-01", help="Start date for timestamp range (YYYY-MM-DD)")
+    parser.add_argument("--end-date", type=str, default=None, help="End date for timestamp range (YYYY-MM-DD, default: now)")
     args = parser.parse_args()
 
     if args.rows <= 0:
         print("--rows must be > 0")
         sys.exit(1)
 
-    print(f"Preparing to generate {args.rows} rows")
+    # Parse date range
+    start_date = datetime.strptime(args.start_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    if args.end_date:
+        end_date = datetime.strptime(args.end_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    else:
+        end_date = datetime.now(timezone.utc)
 
-    rows = [gen_row(i) for i in range(args.rows)]
+    print(f"Preparing to generate {args.rows} rows")
+    print(f"Timestamp range: {start_date.date()} to {end_date.date()}")
+
+    rows = [gen_row(i, start_date, end_date) for i in range(args.rows)]
 
     if args.dry_run:
         out_file = "out.ndjson"
