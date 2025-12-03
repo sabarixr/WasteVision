@@ -447,11 +447,18 @@ async def create_report(
     # Generate signed URL with IAM-based signing (works on Cloud Run without a private key)
     # Explicitly specify service_account_email to force IAM signing via SignBlob API
     from google.auth import compute_engine
-    credentials = storage_client._credentials
+    import google.auth
+    
+    try:
+        credentials = storage_client._credentials
+    except AttributeError:
+        credentials, _ = google.auth.default()
+    
+    service_account_email = None
     if isinstance(credentials, compute_engine.Credentials):
         service_account_email = credentials.service_account_email
-    else:
-        service_account_email = None
+    elif hasattr(credentials, 'service_account_email'):
+        service_account_email = credentials.service_account_email
     
     url = blob.generate_signed_url(
         version="v4",
@@ -491,11 +498,18 @@ def list_reports(user: User = Depends(get_current_user)):
 
     # Get service account email for IAM-based signing
     from google.auth import compute_engine
-    credentials = storage_client._credentials
+    import google.auth
+    
+    try:
+        credentials = storage_client._credentials
+    except AttributeError:
+        credentials, _ = google.auth.default()
+    
+    service_account_email = None
     if isinstance(credentials, compute_engine.Credentials):
         service_account_email = credentials.service_account_email
-    else:
-        service_account_email = None
+    elif hasattr(credentials, 'service_account_email'):
+        service_account_email = credentials.service_account_email
 
     for r in reports:
         # Generate signed URL with IAM-based signing (works on Cloud Run without a private key)
