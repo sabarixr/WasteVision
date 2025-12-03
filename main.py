@@ -444,7 +444,12 @@ async def create_report(
         session.commit()
         session.refresh(report)
 
-    url = blob.generate_signed_url(expiration=timedelta(seconds=SIGNED_URL_EXPIRATION))
+    # Generate signed URL with IAM-based signing (works on Cloud Run without a private key)
+    url = blob.generate_signed_url(
+        version="v4",
+        expiration=timedelta(seconds=SIGNED_URL_EXPIRATION),
+        method="GET"
+    )
 
     return ReportOut(
         id=report.id,
@@ -476,8 +481,11 @@ def list_reports(user: User = Depends(get_current_user)):
     results = []
 
     for r in reports:
+        # Generate signed URL with IAM-based signing (works on Cloud Run without a private key)
         url = bucket.blob(r.filename).generate_signed_url(
-            expiration=timedelta(seconds=SIGNED_URL_EXPIRATION)
+            version="v4",
+            expiration=timedelta(seconds=SIGNED_URL_EXPIRATION),
+            method="GET"
         )
         results.append(ReportOut(
             id=r.id,
