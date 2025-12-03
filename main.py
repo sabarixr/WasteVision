@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 
 from jose import JWTError, jwt
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 from sqlmodel import Field, SQLModel, create_engine, Session, select
 from google.cloud import storage
 from google.cloud import aiplatform
@@ -202,7 +202,7 @@ class UserCreate(BaseModel):
     password: str
     role: Optional[str] = "user"
 
-    @validator("password")
+    @field_validator("password")
     def validate_password(cls, v: str) -> str:
         if v is None:
             raise ValueError("password is required")
