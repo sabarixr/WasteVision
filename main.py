@@ -18,6 +18,7 @@ from sqlmodel import Field, SQLModel, create_engine, Session, select
 from google.cloud import storage
 from google.cloud import aiplatform
 from google.cloud import bigquery
+from google.auth.exceptions import DefaultCredentialsError
 
 # Suppress bcrypt warnings globally before importing passlib
 warnings.filterwarnings("ignore", message=".*bcrypt.*")
@@ -45,7 +46,17 @@ BQ_PROJECT_ID = os.environ.get("BQ_PROJECT_ID")
 BQ_DATASET = os.environ.get("BQ_DATASET")
 BQ_TABLE = os.environ.get("BQ_TABLE")
 
-bq_client = bigquery.Client(project=BQ_PROJECT_ID) if BQ_PROJECT_ID else None
+# Initialize BigQuery client lazily and tolerate missing credentials in local dev
+bq_client = None
+if BQ_PROJECT_ID:
+    try:
+        bq_client = bigquery.Client(project=BQ_PROJECT_ID)
+    except DefaultCredentialsError as e:
+        logging.warning("[DEV] BigQuery disabled: default credentials not found; skipping logging. %s", e)
+        bq_client = None
+    except Exception as e:
+        logging.error("BigQuery client init failed: %s", e)
+        bq_client = None
 
 # OpenWeather API (required for prediction requests)
 OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY")
@@ -277,8 +288,6 @@ def _call_vertex_predict(image_bytes: bytes, lat: Optional[float], lon: Optional
     return {"predictions": resp.predictions}
 
 
-from time import sleep
-
 def _insert_bq_row(row: dict, retries: int = 2, delay: float = 0.5):
     if not bq_client or not (BQ_DATASET and BQ_TABLE and BQ_PROJECT_ID):
         return
@@ -365,7 +374,6 @@ def get_analytics_stats(user: User = Depends(get_current_user)):
             unique_uploaders = len(set(r.uploader_id for r in total_reports))
             
             # Recent reports (last 7 days)
-            from datetime import datetime, timedelta
             week_ago = datetime.utcnow() - timedelta(days=7)
             recent_reports = [r for r in total_reports if r.created_at >= week_ago]
             
@@ -494,9 +502,7 @@ def predict_report(
 ):
     if not UPLOAD_BUCKET:
         raise HTTPException(500, "UPLOAD_BUCKET missing")
-    # BigQuery must be configured
-    if not (BQ_PROJECT_ID and BQ_DATASET and BQ_TABLE and bq_client):
-        raise HTTPException(500, "BigQuery not configured: set BQ_PROJECT_ID, BQ_DATASET, BQ_TABLE")
+    # BigQuery logging is optional; if credentials are missing locally, continue without logging
 
     with Session(engine) as session:
         r = session.get(Report, report_id)
