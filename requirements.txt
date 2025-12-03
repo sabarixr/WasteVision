@@ -13,6 +13,8 @@ fastapi==0.122.0
 google-api-core==2.28.1
 google-auth==2.43.0
 google-cloud-core==2.5.0
+google-cloud-aiplatform==1.70.0
+google-cloud-bigquery==3.25.0
 google-cloud-storage==3.6.0
 google-crc32c==1.7.1
 google-resumable-media==2.8.0
